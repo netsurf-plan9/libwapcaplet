@@ -110,5 +110,21 @@ extern lwc_error lwc_context_string_caseless_isequal(lwc_context *ctx,
                                                      lwc_string *str1,
                                                      lwc_string *str2,
                                                      bool *ret);
+/**
+ * Retrieve the data pointer for an interned string.
+ *
+ * @note The data we point at belongs to the string and will
+ *       die with the string. Keep a ref if you need it.
+ */
+extern const char *lwc_string_data(lwc_string *str);
+
+/**
+ * Retrieve the data length for an interned string.
+ *
+ * @note The data we point at belongs to the string and will
+ *       die with the string. Keep a ref if you need it.
+ */
+extern size_t lwc_string_length(lwc_string *str);
+
 
 #endif /* libwapcaplet_h_ */

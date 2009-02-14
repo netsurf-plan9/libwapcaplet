@@ -314,3 +314,21 @@ lwc_context_string_caseless_isequal(lwc_context *ctx,
         *ret = (str1->insensitive == str2->insensitive);
         return lwc_error_ok;
 }
+
+/**** Simple accessors ****/
+
+const char *
+lwc_string_data(lwc_string *str)
+{
+        assert(str);
+        
+        return CSTR_OF(str);
+}
+
+size_t
+lwc_string_length(lwc_string *str)
+{
+        assert(str);
+        
+        return str->len;
+}

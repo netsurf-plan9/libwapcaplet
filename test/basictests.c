@@ -8,6 +8,7 @@
 
 #include <check.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "tests.h"
 
@@ -158,6 +159,18 @@ START_TEST (test_lwc_context_string_unref_aborts2)
         fail_unless(lwc_create_context(trivial_alloc_fn, NULL, &ctx) == lwc_error_ok,
                     "Unable to create context");
         lwc_context_string_unref(ctx, NULL);
+}
+END_TEST
+
+START_TEST (test_lwc_string_data_aborts)
+{
+        lwc_string_data(NULL);
+}
+END_TEST
+
+START_TEST (test_lwc_string_length_aborts)
+{
+        lwc_string_length(NULL);
 }
 END_TEST
 
@@ -359,6 +372,15 @@ START_TEST (test_lwc_context_string_caseless_isequal_ok)
 }
 END_TEST
 
+START_TEST (test_lwc_extract_data_ok)
+{
+        fail_unless(memcmp("one",
+                           lwc_string_data(intern_one),
+                           lwc_string_length(intern_one)) == 0,
+                    "Extracting data ptr etc failed");
+}
+END_TEST
+
 /**** And the suites are set up here ****/
 
 void
@@ -416,6 +438,12 @@ lwc_basic_suite(SRunner *sr)
         tcase_add_test_raise_signal(tc_basic,
                                     test_lwc_context_string_unref_aborts2,
                                     SIGABRT);
+        tcase_add_test_raise_signal(tc_basic,
+                                    test_lwc_string_data_aborts,
+                                    SIGABRT);
+        tcase_add_test_raise_signal(tc_basic,
+                                    test_lwc_string_length_aborts,
+                                    SIGABRT);
 #endif
         
         tcase_add_test(tc_basic, test_lwc_context_creation_ok);
@@ -442,6 +470,7 @@ lwc_basic_suite(SRunner *sr)
         tcase_add_test(tc_basic, test_lwc_context_string_unref_ok);
         tcase_add_test(tc_basic, test_lwc_context_string_isequal_ok);
         tcase_add_test(tc_basic, test_lwc_context_string_caseless_isequal_ok);
+        tcase_add_test(tc_basic, test_lwc_extract_data_ok);
         suite_add_tcase(s, tc_basic);
         
         srunner_add_suite(sr, s);
