@@ -21,7 +21,7 @@ CFLAGS := -Iinclude -Wall -Werror
 ifeq ($(TARGET),debug)
 CFLAGS += -O0 -g
 else
-CFLAGS += -O2
+CFLAGS += -O2 -DNDEBUG
 endif
 
 

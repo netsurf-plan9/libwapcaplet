@@ -30,29 +30,6 @@ lwc_calculate_hash(const char *str, size_t len)
 	return z;
 }
 
-static inline char
-dolower(const char c)
-{
-        if (c >= 'A' && c <= 'Z')
-                return c + 'a' - 'A';
-        return c;
-}
-
-static inline lwc_hash
-lwc_calculate_lcase_hash(const char *str, size_t len)
-{
-	lwc_hash z = 0x811c9dc5;
-	
-
-	while (len > 0) {
-		z *= 0x01000193;
-		z ^= dolower(*str++);
-                len--;
-	}
-
-	return z;
-}
-
 struct lwc_string_s {
         lwc_string **	prevptr;
         lwc_string *	next;
@@ -161,7 +138,7 @@ __lwc_context_intern(lwc_context *ctx,
         
         while (str != NULL) {
                 if ((str->hash == h) && (str->len == slen)) {
-                        if (compare(s, CSTR_OF(str), slen) == 0) {
+                        if (compare(CSTR_OF(str), s, slen) == 0) {
                                 str->refcnt++;
                                 *ret = str;
                                 return lwc_error_ok;
@@ -177,7 +154,8 @@ __lwc_context_intern(lwc_context *ctx,
         
         str->prevptr = &(ctx->buckets[bucket]);
         str->next = ctx->buckets[bucket];
-        ctx->buckets[bucket]->prevptr = &(str->next);
+        if (str->next != NULL)
+                str->next->prevptr = &(str->next);
         ctx->buckets[bucket] = str;
         
         str->len = slen;
@@ -239,12 +217,39 @@ lwc_context_string_unref(lwc_context *ctx, lwc_string *str)
                 return;
         
         *(str->prevptr) = str->next;
-        str->next->prevptr = str->prevptr;
+        
+        if (str->next != NULL)
+                str->next->prevptr = str->prevptr;
 
         if (str->insensitive != NULL)
                 lwc_context_string_unref(ctx, str->insensitive);
         
         LWC_FREE(str);
+}
+
+/**** Shonky caseless bits ****/
+
+static inline char
+dolower(const char c)
+{
+        if (c >= 'A' && c <= 'Z')
+                return c + 'a' - 'A';
+        return c;
+}
+
+static inline lwc_hash
+lwc_calculate_lcase_hash(const char *str, size_t len)
+{
+	lwc_hash z = 0x811c9dc5;
+	
+
+	while (len > 0) {
+		z *= 0x01000193;
+		z ^= dolower(*str++);
+                len--;
+	}
+
+	return z;
 }
 
 static int
