@@ -213,7 +213,10 @@ lwc_context_string_unref(lwc_context *ctx, lwc_string *str)
         assert(ctx);
         assert(str);
         
-        if (--(str->refcnt))
+        if (--(str->refcnt) > 1)
+                return;
+        
+        if ((str->refcnt == 1) && (str->insensitive != str))
                 return;
         
         *(str->prevptr) = str->next;
@@ -221,7 +224,7 @@ lwc_context_string_unref(lwc_context *ctx, lwc_string *str)
         if (str->next != NULL)
                 str->next->prevptr = str->prevptr;
 
-        if (str->insensitive != NULL)
+        if (str->insensitive != NULL && str->refcnt == 0)
                 lwc_context_string_unref(ctx, str->insensitive);
         
         LWC_FREE(str);

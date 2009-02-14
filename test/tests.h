@@ -16,5 +16,6 @@
 #include "libwapcaplet/libwapcaplet.h"
 
 extern void lwc_basic_suite(SRunner *);
+extern void lwc_memory_suite(SRunner *);
 
 #endif /* lwc_tests_h_ */

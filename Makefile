@@ -5,7 +5,7 @@ LIB := libwapcaplet.a
 SRCS := libwapcaplet.c
 HDRS := libwapcaplet/libwapcaplet.h
 
-TESTSRCS := testmain.c basictests.c
+TESTSRCS := testmain.c basictests.c memorytests.c
 
 TARGET ?= debug
 
