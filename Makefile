@@ -5,16 +5,31 @@ LIB := libwapcaplet.a
 SRCS := libwapcaplet.c
 HDRS := libwapcaplet/libwapcaplet.h
 
+PREFIX ?= /usr/local
+
 TESTSRCS := testmain.c basictests.c memorytests.c
 
 TARGET ?= debug
 
 BUILDDIR := build-$(TARGET)
 
+MKDIR ?= mkdir -p
+SED ?= sed
+INSTALL ?= install
+
 all: $(BUILDDIR)/$(LIB)
 
 test: $(BUILDDIR)/testrunner
 	$(BUILDDIR)/testrunner
+
+install: all
+	$(MKDIR) $(PREFIX)/lib/pkgconfig $(PREFIX)/include/libwapcaplet
+	$(SED) -e 's#PREFIX#$(PREFIX)#' libwapcaplet.pc.in >libwapcaplet.pc
+	$(INSTALL) -m 644 libwapcaplet.pc $(PREFIX)/lib/pkgconfig
+	$(INSTALL) -m 644 $(BUILDDIR)/$(LIB) $(PREFIX)/lib/$(LIB)
+	for F in $(HDRS); do \
+		$(INSTALL) -m 644 include/$$F $(PREFIX)/include/libwapcaplet; \
+	done
 
 CFLAGS := -Iinclude -Wall -Werror
 
