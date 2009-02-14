@@ -1,0 +1,89 @@
+# Simple Makefile for libwapcaplet
+
+LIB := libwapcaplet.a
+
+SRCS := libwapcaplet.c
+HDRS := libwapcaplet/libwapcaplet.h
+
+TESTSRCS := testmain.c basictests.c
+
+TARGET ?= debug
+
+BUILDDIR := build-$(TARGET)
+
+all: $(BUILDDIR)/$(LIB)
+
+test: $(BUILDDIR)/testrunner
+	$(BUILDDIR)/testrunner
+
+CFLAGS := -Iinclude -Wall -Werror
+
+ifeq ($(TARGET),debug)
+CFLAGS += -O0 -g
+else
+CFLAGS += -O2
+endif
+
+
+clean:
+	rm -fr build-*
+
+$(BUILDDIR)/stamp:
+	mkdir -p $(BUILDDIR)
+	touch $(BUILDDIR)/stamp
+
+define srcfile
+src/$1
+endef
+
+define objfile
+$(BUILDDIR)/$(1:.c=.o)
+endef
+
+define depfile
+$(BUILDDIR)/$(1:.c=.d)
+endef
+
+DEPS :=
+OBJS :=
+
+define _depandbuild
+
+$2: $1 $(BUILDDIR)/stamp
+	$(CC) -MMD -MP $($5) -o $2 -c $1
+
+$4 += $2
+DEPS += $3
+
+endef
+
+define depandbuild
+$(call _depandbuild,$(call srcfile,$1),$(call objfile,$1),$(call depfile,$1),OBJS,CFLAGS)
+endef
+
+$(eval $(foreach SOURCE,$(SRCS),$(call depandbuild,$(SOURCE))))
+
+ifneq ($(MAKECMDGOALS),clean)
+-include $(DEPS)
+endif
+
+$(BUILDDIR)/$(LIB): $(BUILDDIR)/stamp $(OBJS)
+	$(AR) cru $@ $^
+
+define testsrc
+test/$1
+endef
+
+define depandbuildtest
+$(call _depandbuild,$(call testsrc,$1),$(call objfile,test-$1),$(call depfile,test-$1),TOBJS,TESTCFLAGS)
+endef
+
+TOBJS :=
+
+TESTCFLAGS := $(CFLAGS) $(shell pkg-config --cflags check)
+TESTLDFLAGS := $(LDFLAGS) $(shell pkg-config --libs check)
+
+$(eval $(foreach TESTSRC,$(TESTSRCS),$(call depandbuildtest,$(TESTSRC))))
+
+$(BUILDDIR)/testrunner: $(BUILDDIR)/stamp $(TOBJS) $(BUILDDIR)/$(LIB)
+	$(CC) -o $@ $(TOBJS) $(BUILDDIR)/$(LIB) $(TESTLDFLAGS)

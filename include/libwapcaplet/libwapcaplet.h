@@ -10,6 +10,7 @@
 #define libwapcaplet_h_
 
 #include <sys/types.h>
+#include <stdbool.h>
 
 /**
  * Memory allocator type
@@ -30,9 +31,9 @@ typedef struct lwc_string_s lwc_string;
  * Error codes which libwapcaplet might return.
  */
 typedef enum lwc_error_e {
-	lwc_error_ok	= 0,
-	lwc_error_oom	= 1,
-        lwc_error_range	= 2,
+	lwc_error_ok		= 0,
+	lwc_error_oom		= 1,
+        lwc_error_range		= 2,
 } lwc_error;
 
 /**

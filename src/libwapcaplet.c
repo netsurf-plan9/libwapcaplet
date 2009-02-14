@@ -7,6 +7,8 @@
  */
 
 #include <string.h>
+#include <stdint.h>
+#include <assert.h>
 
 #include "libwapcaplet/libwapcaplet.h"
 
@@ -77,6 +79,8 @@ lwc_error
 lwc_create_context(lwc_allocator_fn alloc, void *pw,
                    lwc_context **ret)
 {
+        assert(alloc);
+
         *ret = alloc(NULL, sizeof(lwc_context), pw);
         
         if (*ret == NULL)
@@ -193,7 +197,7 @@ lwc_context_intern(lwc_context *ctx,
 {
         return __lwc_context_intern(ctx, s, slen, ret,
                                     lwc_calculate_hash,
-                                    strncmp, memcpy);
+                                    strncmp, (lwc_memcpy)memcpy);
 }
 
 lwc_error
