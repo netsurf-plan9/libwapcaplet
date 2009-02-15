@@ -227,6 +227,10 @@ lwc_context_string_unref(lwc_context *ctx, lwc_string *str)
         if (str->insensitive != NULL && str->refcnt == 0)
                 lwc_context_string_unref(ctx, str->insensitive);
         
+#ifndef NDEBUG
+        memset(str, 0xA5, sizeof(*str) + str->len);
+#endif
+        
         LWC_FREE(str);
 }
 
