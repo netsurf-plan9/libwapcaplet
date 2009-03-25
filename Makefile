@@ -16,6 +16,13 @@ WARNFLAGS := -Wall -Wextra -Wundef -Wpointer-arith -Wcast-align \
 CFLAGS := $(CFLAGS) -std=c99 -D_BSD_SOURCE -I$(CURDIR)/include/ \
 	-I$(CURDIR)/src $(WARNFLAGS) 
 
+ifneq ($(PKGCONFIG),)
+  TESTCFLAGS := $(TESTCFLAGS) $(shell $(PKGCONFIG) --cflags check)
+  TESTLDFLAGS := $(TESTLDFLAGS) $(shell $(PKGCONFIG) --libs check)
+else
+  TESTLDFLAGS := $(TESTLDFLAGS) -lcheck
+endif
+
 include build/makefiles/Makefile.top
 
 # Extra installation rules

@@ -12,6 +12,10 @@
 
 #include "libwapcaplet/libwapcaplet.h"
 
+#ifndef UNUSED
+#define UNUSED(x) ((x) = (x))
+#endif
+
 typedef uint32_t lwc_hash;
 typedef uint32_t lwc_refcounter;
 
@@ -199,6 +203,8 @@ lwc_context_intern_substring(lwc_context *ctx,
 lwc_string *
 lwc_context_string_ref(lwc_context *ctx, lwc_string *str)
 {
+	UNUSED(ctx);
+
         assert(ctx);
         assert(str);
         

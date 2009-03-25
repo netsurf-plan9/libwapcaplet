@@ -33,7 +33,7 @@ tracking_allocator(void *ptr, size_t len, void *pw)
                 allocs++;
                 ret = malloc(len + sizeof(size_t));
                 *(size_t *)ret = len;
-                return ret + sizeof(size_t);
+                return ((char *) ret) + sizeof(size_t);
         }
         last_op = FREE;
         allocs--;

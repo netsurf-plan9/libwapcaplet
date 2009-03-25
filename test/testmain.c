@@ -11,7 +11,12 @@
 
 #include "tests.h"
 
+#ifndef UNUSED
+#define UNUSED(x) ((x) = (x))
+#endif
+
 /* This means that assertion failures are silent in tests */
+extern void __assert_fail(void);
 void __assert_fail(void) { abort(); }
 
 int
@@ -19,7 +24,10 @@ main(int argc, char **argv)
 {
         int number_failed = 0;
         SRunner *sr;
-        
+
+	UNUSED(argc);
+	UNUSED(argv);
+  
         sr = srunner_create(suite_create("Test suite for libwapcaplet"));
         
         lwc_basic_suite(sr);
