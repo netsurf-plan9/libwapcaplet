@@ -16,14 +16,16 @@ WARNFLAGS := -Wall -Wextra -Wundef -Wpointer-arith -Wcast-align \
 CFLAGS := $(CFLAGS) -std=c99 -D_BSD_SOURCE -I$(CURDIR)/include/ \
 	-I$(CURDIR)/src $(WARNFLAGS) 
 
-ifneq ($(PKGCONFIG),)
-  TESTCFLAGS := $(TESTCFLAGS) $(shell $(PKGCONFIG) --cflags check)
-  TESTLDFLAGS := $(TESTLDFLAGS) $(shell $(PKGCONFIG) --libs check)
-else
-  TESTLDFLAGS := $(TESTLDFLAGS) -lcheck
-endif
-
 include build/makefiles/Makefile.top
+
+ifeq ($(WANT_TEST),yes)
+  ifneq ($(PKGCONFIG),)
+    TESTCFLAGS := $(TESTCFLAGS) $(shell $(PKGCONFIG) --cflags check)
+    TESTLDFLAGS := $(TESTLDFLAGS) $(shell $(PKGCONFIG) --libs check)
+  else
+    TESTLDFLAGS := $(TESTLDFLAGS) -lcheck
+  endif
+endif
 
 # Extra installation rules
 INSTALL_ITEMS := $(INSTALL_ITEMS) /include/libwapcaplet:include/libwapcaplet/libwapcaplet.h
