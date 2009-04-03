@@ -1,5 +1,6 @@
 # Component settings
 COMPONENT := wapcaplet
+COMPONENT_VERSION := 0.0.1
 # Default to a static library
 COMPONENT_TYPE ?= lib-static
 
@@ -28,6 +29,7 @@ ifeq ($(WANT_TEST),yes)
 endif
 
 # Extra installation rules
-INSTALL_ITEMS := $(INSTALL_ITEMS) /include/libwapcaplet:include/libwapcaplet/libwapcaplet.h
+I := /include/libwapcaplet$(major-version)/libwapcaplet
+INSTALL_ITEMS := $(INSTALL_ITEMS) $(I):include/libwapcaplet/libwapcaplet.h
 INSTALL_ITEMS := $(INSTALL_ITEMS) /lib/pkgconfig:lib$(COMPONENT).pc.in
-INSTALL_ITEMS := $(INSTALL_ITEMS) /lib:$(BUILDDIR)/lib$(COMPONENT)$(LIBEXT)
+INSTALL_ITEMS := $(INSTALL_ITEMS) /lib:$(OUTPUT)
