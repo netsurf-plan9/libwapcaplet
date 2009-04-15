@@ -33,7 +33,7 @@ typedef struct lwc_string_s lwc_string;
 typedef enum lwc_error_e {
 	lwc_error_ok		= 0,
 	lwc_error_oom		= 1,
-        lwc_error_range		= 2,
+        lwc_error_range		= 2
 } lwc_error;
 
 /**
