@@ -33,7 +33,7 @@ Requirements
 
 To compile LibWapcaplet you need:
 
- * GNU Make 3.80 or better
+ * GNU Make 3.81 or better
  * A version of GCC capable of -MMD -MF (unless you change the build
    system)
 
@@ -44,8 +44,8 @@ To compile the test suite you need:
 Compilation
 -----------
 
-To build LibWapcaplet in debug mode, type 'make'. To build it in
-release mode type 'make TARGET=release'.  To install, run 'make
+To build LibWapcaplet in release mode, type 'make'. To build it in
+debug mode type 'make BUILD=debug'.  To install, run 'make
 install'. If you wish to install LibWapcaplet into somewhere other
 than /usr/local/ then add PREFIX=/path/to/place to the installation
 make command.
