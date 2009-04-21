@@ -6,5 +6,5 @@ includedir=${prefix}/include
 Name: libwapcaplet
 Description: String internalisation dictionary
 Version: VERSION
-Libs: -L${libdir} -lwapcapletMAJOR
-Cflags: -I${includedir}/libwapcapletMAJOR
+Libs: -L${libdir} -lwapcaplet
+Cflags: -I${includedir}
