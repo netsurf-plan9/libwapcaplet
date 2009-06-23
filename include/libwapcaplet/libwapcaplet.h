@@ -11,6 +11,7 @@
 
 #include <sys/types.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 /**
  * Memory allocator type
@@ -126,5 +127,15 @@ extern const char *lwc_string_data(lwc_string *str);
  */
 extern size_t lwc_string_length(lwc_string *str);
 
+/**
+ * Retrieve (or compute if unavailable) a hash value for the content of the string.
+ *
+ * @note This API should only be used as a convenient way to retrieve a hash
+ *       value for the string. This hash value should not be relied on to be
+ *       unique within an invocation of the program, nor should it be relied upon
+ *       to be stable between invocations of the program. Never use the hash
+ *       value as a way to directly identify the value of the string.
+ */
+extern uint32_t lwc_string_hash_value(lwc_string *str);
 
 #endif /* libwapcaplet_h_ */

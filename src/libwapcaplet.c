@@ -7,7 +7,6 @@
  */
 
 #include <string.h>
-#include <stdint.h>
 #include <assert.h>
 
 #include "libwapcaplet/libwapcaplet.h"
@@ -341,4 +340,12 @@ lwc_string_length(lwc_string *str)
         assert(str);
         
         return str->len;
+}
+
+uint32_t
+lwc_string_hash_value(lwc_string *str)
+{
+	assert(str);
+
+	return str->hash;
 }

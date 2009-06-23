@@ -174,6 +174,12 @@ START_TEST (test_lwc_string_length_aborts)
 }
 END_TEST
 
+START_TEST (test_lwc_string_hash_value_aborts)
+{
+	lwc_string_hash_value(NULL);
+}
+END_TEST
+
 #endif
 
 START_TEST (test_lwc_context_creation_ok)
@@ -381,6 +387,12 @@ START_TEST (test_lwc_extract_data_ok)
 }
 END_TEST
 
+START_TEST (test_lwc_string_hash_value_ok)
+{
+	lwc_string_hash_value(intern_one);
+}
+END_TEST
+
 /**** And the suites are set up here ****/
 
 void
@@ -444,6 +456,9 @@ lwc_basic_suite(SRunner *sr)
         tcase_add_test_raise_signal(tc_basic,
                                     test_lwc_string_length_aborts,
                                     SIGABRT);
+        tcase_add_test_raise_signal(tc_basic,
+                                    test_lwc_string_hash_value_aborts,
+                                    SIGABRT);
 #endif
         
         tcase_add_test(tc_basic, test_lwc_context_creation_ok);
@@ -471,6 +486,7 @@ lwc_basic_suite(SRunner *sr)
         tcase_add_test(tc_basic, test_lwc_context_string_isequal_ok);
         tcase_add_test(tc_basic, test_lwc_context_string_caseless_isequal_ok);
         tcase_add_test(tc_basic, test_lwc_extract_data_ok);
+        tcase_add_test(tc_basic, test_lwc_string_hash_value_ok);
         suite_add_tcase(s, tc_basic);
         
         srunner_add_suite(sr, s);
