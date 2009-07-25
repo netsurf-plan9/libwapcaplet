@@ -150,7 +150,8 @@ __lwc_context_intern(lwc_context *ctx,
                 str = str->next;
         }
         
-        *ret = str = LWC_ALLOC(sizeof(lwc_string) + slen);
+        /* Add one for the additional NUL. */
+        *ret = str = LWC_ALLOC(sizeof(lwc_string) + slen + 1);
         
         if (str == NULL)
                 return lwc_error_oom;
@@ -167,6 +168,9 @@ __lwc_context_intern(lwc_context *ctx,
         str->insensitive = NULL;
         
         copy(STR_OF(str), s, slen);
+
+        /* Guarantee NUL termination */
+        STR_OF(str)[slen] = '\0';
         
         return lwc_error_ok;
 }

@@ -176,7 +176,7 @@ END_TEST
 
 START_TEST (test_lwc_string_hash_value_aborts)
 {
-	lwc_string_hash_value(NULL);
+        lwc_string_hash_value(NULL);
 }
 END_TEST
 
@@ -389,7 +389,35 @@ END_TEST
 
 START_TEST (test_lwc_string_hash_value_ok)
 {
-	lwc_string_hash_value(intern_one);
+        lwc_string_hash_value(intern_one);
+}
+END_TEST
+
+START_TEST (test_lwc_string_is_nul_terminated)
+{
+        lwc_string *new_ONE;
+
+        fail_unless(lwc_context_intern(shared_ctx, "ONE", 3, &new_ONE) == lwc_error_ok,
+                    "Failure interning 'ONE'");
+
+        fail_unless(lwc_string_data(new_ONE)[lwc_string_length(new_ONE)] == '\0',
+                    "Interned string isn't NUL terminated");
+}
+END_TEST
+
+START_TEST (test_lwc_substring_is_nul_terminated)
+{
+        lwc_string *new_ONE;
+        lwc_string *new_O;
+
+        fail_unless(lwc_context_intern(shared_ctx, "ONE", 3, &new_ONE) == lwc_error_ok,
+                    "Failure interning 'ONE'");
+
+        fail_unless(lwc_context_intern_substring(shared_ctx, new_ONE, 0, 1, &new_O) == lwc_error_ok,
+                    "Failure interning substring 'O'");
+
+        fail_unless(lwc_string_data(new_O)[lwc_string_length(new_O)] == '\0',
+                    "Interned substring isn't NUL terminated");
 }
 END_TEST
 
@@ -487,6 +515,8 @@ lwc_basic_suite(SRunner *sr)
         tcase_add_test(tc_basic, test_lwc_context_string_caseless_isequal_ok);
         tcase_add_test(tc_basic, test_lwc_extract_data_ok);
         tcase_add_test(tc_basic, test_lwc_string_hash_value_ok);
+        tcase_add_test(tc_basic, test_lwc_string_is_nul_terminated);
+        tcase_add_test(tc_basic, test_lwc_substring_is_nul_terminated);
         suite_add_tcase(s, tc_basic);
         
         srunner_add_suite(sr, s);

@@ -64,6 +64,8 @@ extern void lwc_context_unref(lwc_context *ctx);
  * Intern a string.
  *
  * If the string was already present, its reference count is incremented.
+ *
+ * The returned string is guaranteed to be NUL-terminated.
  */
 extern lwc_error lwc_context_intern(lwc_context *ctx,
 				    const char *s, size_t slen,
