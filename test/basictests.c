@@ -180,6 +180,12 @@ START_TEST (test_lwc_string_hash_value_aborts)
 }
 END_TEST
 
+START_TEST (test_lwc_context_size_aborts)
+{
+        lwc_context_size(NULL);
+}
+END_TEST
+
 #endif
 
 START_TEST (test_lwc_context_creation_ok)
@@ -273,6 +279,105 @@ START_TEST (test_lwc_context_intern_twice_same_ok)
                     "Unable to intern a simple string");
         fail_unless(str2 != NULL,
                     "Returned OK but str was still NULL");
+}
+END_TEST
+
+START_TEST (test_lwc_context_size_non_zero)
+{
+        fail_unless(lwc_context_size(shared_ctx) > 0,
+                    "Size of empty context is zero");
+}
+END_TEST
+
+START_TEST (test_lwc_context_size_updated_on_string_intern)
+{
+        size_t empty_size = lwc_context_size(shared_ctx);
+        lwc_string *str;
+
+        fail_unless(empty_size > 0,
+                    "Size of empty context is zero");
+
+        fail_unless(lwc_context_intern(shared_ctx, "one", 3, &str) == lwc_error_ok,
+                    "Unable to intern a simple string");
+
+        fail_unless(lwc_context_size(shared_ctx) > empty_size,
+                    "Post-intern context size is same or smaller than empty size");
+}
+END_TEST
+
+START_TEST (test_lwc_context_size_updated_on_string_unref)
+{
+        size_t empty_size = lwc_context_size(shared_ctx);
+        lwc_string *str;
+
+        fail_unless(empty_size > 0,
+                    "Size of empty context is zero");
+
+        fail_unless(lwc_context_intern(shared_ctx, "one", 3, &str) == lwc_error_ok,
+                    "Unable to intern a simple string");
+
+        fail_unless(lwc_context_size(shared_ctx) > empty_size,
+                    "Post-intern context size is same or smaller than empty size");
+
+        lwc_context_string_unref(shared_ctx, str);
+
+        fail_unless(lwc_context_size(shared_ctx) == empty_size,
+                    "Post-unref context size is not the same as empty size");
+}
+END_TEST
+
+START_TEST (test_lwc_context_size_updated_on_substring_intern)
+{
+        size_t empty_size = lwc_context_size(shared_ctx);
+	size_t post_intern_size = 0;
+        lwc_string *str, *str2;
+
+        fail_unless(empty_size > 0,
+                    "Size of empty context is zero");
+
+        fail_unless(lwc_context_intern(shared_ctx, "one", 3, &str) == lwc_error_ok,
+                    "Unable to intern a simple string");
+
+        post_intern_size = lwc_context_size(shared_ctx);
+
+        fail_unless(post_intern_size > empty_size,
+                    "Post-intern context size is same or smaller than empty size");
+
+        fail_unless(lwc_context_intern_substring(shared_ctx, str, 0, 1, &str2) == lwc_error_ok,
+                    "Failed to intern substring");
+
+        fail_unless(lwc_context_size(shared_ctx) > post_intern_size,
+                    "Post-substring-intern context size is same or smaller than pre-substring-intern size");
+}
+END_TEST
+
+START_TEST (test_lwc_context_size_updated_on_substring_unref)
+{
+        size_t empty_size = lwc_context_size(shared_ctx);
+	size_t post_intern_size = 0;
+        lwc_string *str, *str2;
+
+        fail_unless(empty_size > 0,
+                    "Size of empty context is zero");
+
+        fail_unless(lwc_context_intern(shared_ctx, "one", 3, &str) == lwc_error_ok,
+                    "Unable to intern a simple string");
+
+        post_intern_size = lwc_context_size(shared_ctx);
+
+        fail_unless(post_intern_size > empty_size,
+                    "Post-intern context size is same or smaller than empty size");
+
+        fail_unless(lwc_context_intern_substring(shared_ctx, str, 0, 1, &str2) == lwc_error_ok,
+                    "Failed to intern substring");
+
+        fail_unless(lwc_context_size(shared_ctx) > post_intern_size,
+                    "Post-substring-intern context size is same or smaller than pre-substring-intern size");
+
+        lwc_context_string_unref(shared_ctx, str2);
+
+        fail_unless(lwc_context_size(shared_ctx) == post_intern_size,
+                    "Post-substring-unref size is not the same as pre-substring-intern size");
 }
 END_TEST
 
@@ -487,6 +592,9 @@ lwc_basic_suite(SRunner *sr)
         tcase_add_test_raise_signal(tc_basic,
                                     test_lwc_string_hash_value_aborts,
                                     SIGABRT);
+        tcase_add_test_raise_signal(tc_basic,
+                                    test_lwc_context_size_aborts,
+                                    SIGABRT);
 #endif
         
         tcase_add_test(tc_basic, test_lwc_context_creation_ok);
@@ -501,6 +609,14 @@ lwc_basic_suite(SRunner *sr)
         tcase_add_test(tc_basic, test_lwc_context_intern_ok);
         tcase_add_test(tc_basic, test_lwc_context_intern_twice_ok);
         tcase_add_test(tc_basic, test_lwc_context_intern_twice_same_ok);
+        tcase_add_test(tc_basic, test_lwc_context_size_non_zero);
+        tcase_add_test(tc_basic, 
+                       test_lwc_context_size_updated_on_string_intern);
+        tcase_add_test(tc_basic, test_lwc_context_size_updated_on_string_unref);
+        tcase_add_test(tc_basic, 
+                       test_lwc_context_size_updated_on_substring_intern);
+        tcase_add_test(tc_basic, 
+                       test_lwc_context_size_updated_on_substring_unref);
         suite_add_tcase(s, tc_basic);
         
         tc_basic = tcase_create("Ops with a filled context");

@@ -140,4 +140,9 @@ extern size_t lwc_string_length(lwc_string *str);
  */
 extern uint32_t lwc_string_hash_value(lwc_string *str);
 
+/**
+ * Retrieve the size, in bytes, of internment context \a ctx.
+ */
+extern size_t lwc_context_size(lwc_context *ctx);
+
 #endif /* libwapcaplet_h_ */

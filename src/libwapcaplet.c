@@ -53,6 +53,7 @@ struct lwc_context_s {
         lwc_string *		buckets[NR_BUCKETS];
         lwc_refcounter		refcnt;
         bool			refweak;
+        size_t			size;
 };
 
 lwc_error
@@ -72,6 +73,7 @@ lwc_create_context(lwc_allocator_fn alloc, void *pw,
         (*ret)->alloc_pw = pw;
         (*ret)->refcnt = 1;
         (*ret)->refweak = true;
+        (*ret)->size = sizeof(lwc_context);
         
         return lwc_error_ok;
 }
@@ -130,6 +132,7 @@ __lwc_context_intern(lwc_context *ctx,
         lwc_hash h;
         lwc_hash bucket;
         lwc_string *str;
+        size_t required_size;
         
         assert(ctx);
         assert((s != NULL) || (slen == 0));
@@ -151,7 +154,9 @@ __lwc_context_intern(lwc_context *ctx,
         }
         
         /* Add one for the additional NUL. */
-        *ret = str = LWC_ALLOC(sizeof(lwc_string) + slen + 1);
+        required_size = sizeof(lwc_string) + slen + 1;
+
+        *ret = str = LWC_ALLOC(required_size);
         
         if (str == NULL)
                 return lwc_error_oom;
@@ -161,7 +166,10 @@ __lwc_context_intern(lwc_context *ctx,
         if (str->next != NULL)
                 str->next->prevptr = &(str->next);
         ctx->buckets[bucket] = str;
-        
+
+        /* Keep context size in sync */
+        ctx->size += required_size;
+ 
         str->len = slen;
         str->hash = h;
         str->refcnt = 1;
@@ -235,7 +243,10 @@ lwc_context_string_unref(lwc_context *ctx, lwc_string *str)
 
         if (str->insensitive != NULL && str->refcnt == 0)
                 lwc_context_string_unref(ctx, str->insensitive);
-        
+
+        /* Reduce context size by appropriate amount (+1 for trailing NUL) */
+        ctx->size -= sizeof(lwc_string) + str->len + 1;
+       
 #ifndef NDEBUG
         memset(str, 0xA5, sizeof(*str) + str->len);
 #endif
@@ -353,3 +364,12 @@ lwc_string_hash_value(lwc_string *str)
 
 	return str->hash;
 }
+
+size_t
+lwc_context_size(lwc_context *ctx)
+{
+        assert(ctx);
+
+        return ctx->size;
+}
+
