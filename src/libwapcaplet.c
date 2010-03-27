@@ -313,3 +313,17 @@ lwc_string_hash_value(lwc_string *str)
 
 	return str->hash;
 }
+
+/**** Iteration ****/
+
+void
+lwc_iterate_strings(lwc_iteration_callback_fn cb, void *pw)
+{
+        lwc_hash n;
+        lwc_string *str;
+        
+        for (n = 0; n < ctx->bucketcount; ++n) {
+                for (str = ctx->buckets[n]; str != NULL; str = str->next)
+                        cb(str, pw);
+        }
+}

@@ -426,6 +426,22 @@ START_TEST (test_lwc_substring_is_nul_terminated)
 }
 END_TEST
 
+static void
+counting_cb(lwc_string *str, void *pw)
+{
+        UNUSED(str);
+        
+        *((int *)pw) += 1;
+}
+
+START_TEST (test_lwc_string_iteration)
+{
+        int counter = 0;
+        lwc_iterate_strings(counting_cb, (void*)&counter);
+        fail_unless(counter == 4, "Incorrect string count");
+}
+END_TEST
+
 /**** And the suites are set up here ****/
 
 void
@@ -501,6 +517,7 @@ lwc_basic_suite(SRunner *sr)
         tcase_add_test(tc_basic, test_lwc_substring_is_nul_terminated);
         tcase_add_test(tc_basic, test_lwc_intern_substring_bad_size);
         tcase_add_test(tc_basic, test_lwc_intern_substring_bad_offset);
+        tcase_add_test(tc_basic, test_lwc_string_iteration);
         suite_add_tcase(s, tc_basic);
         
         srunner_add_suite(sr, s);

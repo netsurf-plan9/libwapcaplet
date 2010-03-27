@@ -29,6 +29,14 @@ typedef void *(*lwc_allocator_fn)(void *ptr, size_t size, void *pw);
 typedef struct lwc_string_s lwc_string;
 
 /**
+ * String iteration function
+ *
+ * @param str A string which has been interned.
+ * @param pw The private pointer for the allocator.
+ */
+typedef void (*lwc_iteration_callback_fn)(lwc_string *str, void *pw);
+
+/**
  * Result codes which libwapcaplet might return.
  */
 typedef enum lwc_error_e {
@@ -149,7 +157,7 @@ extern void lwc_string_unref(lwc_string *str);
  *	       by \a ret will not be valid.
  */
 #define lwc_string_isequal(str1, str2, ret) \
-	(*ret = (str1 == str2)), lwc_error_ok
+	((*(ret) = ((str1) == (str2))), lwc_error_ok)
 
 /**
  * Check if two interned strings are case-insensitively equal.
@@ -198,5 +206,13 @@ extern size_t lwc_string_length(lwc_string *str);
  *	 value as a way to directly identify the value of the string.
  */
 extern uint32_t lwc_string_hash_value(lwc_string *str);
+
+/**
+ * Iterate the context and return every string in it.
+ *
+ * @param cb The callback to give the string to.
+ * @param pw The private word for the callback.
+ */
+extern void lwc_iterate_strings(lwc_iteration_callback_fn cb, void *pw);
 
 #endif /* libwapcaplet_h_ */
