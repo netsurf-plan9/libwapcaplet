@@ -9,6 +9,11 @@
 #ifndef libwapcaplet_h_
 #define libwapcaplet_h_
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <sys/types.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -214,5 +219,9 @@ extern uint32_t lwc_string_hash_value(lwc_string *str);
  * @param pw The private word for the callback.
  */
 extern void lwc_iterate_strings(lwc_iteration_callback_fn cb, void *pw);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* libwapcaplet_h_ */
