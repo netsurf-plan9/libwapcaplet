@@ -19,16 +19,6 @@ extern "C"
 #include <stdint.h>
 
 /**
- * Memory allocator function type
- *
- * @param ptr The old pointer to reallocate (NULL for new allocations).
- * @param size The size of block to allocate.
- * @param pw The private pointer for the allocator.
- * @return The newly allocated/resized pointer or NULL on error.
- */
-typedef void *(*lwc_allocator_fn)(void *ptr, size_t size, void *pw);
-
-/**
  * An interned string.
  */
 typedef struct lwc_string_s lwc_string;
@@ -46,36 +36,14 @@ typedef void (*lwc_iteration_callback_fn)(lwc_string *str, void *pw);
  */
 typedef enum lwc_error_e {
 	lwc_error_ok		= 0,	/**< No error. */
-        lwc_error_initialised	= 1,	/**< Library already initialised. */
-	lwc_error_oom		= 2,	/**< Out of memory. */
-	lwc_error_range		= 3,	/**< Substring internment out of range. */
+	lwc_error_oom		= 1,	/**< Out of memory. */
+	lwc_error_range		= 2,	/**< Substring internment out of range. */
 } lwc_error;
 
 /**
  * The type of a hash value used in libwapcaplet.
  */
 typedef uint32_t lwc_hash;
-
-/**
- * Initialise the library.
- *
- * Initialise the library with an allocator function.  All strings
- * interned will be allocated via this function, as will any
- * structures required to manage libwapcaplet.  In this manner, all
- * interned strings are directly comparable, no matter what interned
- * them.
- *
- * @note If you require to know how much memory libwapcaplet is using
- *       then you should use a counting allocator function.
- *
- * @param alloc   The allocator to use for libwapcaplet allocations.
- * @param pw      The private word to pass to \a alloc.
- * @param buckets The number of buckets to use by default, or zero to
- *                allow the implementation to choose for itself.
- * @return        The result of initialising.  If not OK do not use
- *                any further wapcaplet functions.
- */
-extern lwc_error lwc_initialise(lwc_allocator_fn alloc, void *pw, lwc_hash buckets);
 
 /**
  * Intern a string.

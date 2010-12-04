@@ -16,14 +16,6 @@
 #define UNUSED(x) (void)(x)
 #endif
 
-static void *last_pw = NULL;
-static void *
-trivial_alloc_fn(void *p, size_t s, void *pw)
-{
-        last_pw = pw;
-        return realloc(p, s);
-}
-
 #ifndef NDEBUG
 /* All the basic assert() tests */
 START_TEST (test_lwc_intern_string_aborts1)
@@ -47,8 +39,6 @@ END_TEST
 START_TEST (test_lwc_intern_substring_aborts2)
 {
         lwc_string *str;
-        fail_unless(lwc_initialise(trivial_alloc_fn, NULL, 0) == lwc_error_ok,
-                    "unable to initialise the library");
         fail_unless(lwc_intern_string("Jam", 3, &str) == lwc_error_ok,
                     "unable to intern 'Jam'");
         
@@ -88,99 +78,12 @@ END_TEST
 
 #endif
 
-START_TEST (test_lwc_double_initialise_fails)
-{
-        fail_unless(lwc_initialise(trivial_alloc_fn, NULL, 0) == lwc_error_ok,
-                    "Unable to initialise library");
-        fail_unless(lwc_initialise(trivial_alloc_fn, NULL, 0) == lwc_error_initialised,
-                    "Able to initialise library a second time");
-}
-END_TEST
-
-static void *enomem_allocator(void *ptr, size_t n, void *pw)
-{
-        int *pi = (int*)pw;
-        UNUSED(ptr);
-        UNUSED(n);
-        
-        if (*pi > 0) {
-                *pi -= 1;
-                return realloc(ptr, n);
-        }
-        
-        return NULL;
-}
-
-START_TEST (test_lwc_initialise_fails_with_no_memory)
-{
-        int permitted = 0;
-        fail_unless(lwc_initialise(enomem_allocator, &permitted, 0) == lwc_error_oom,
-                    "Able to initialise library with no memory available?!");
-}
-END_TEST
-
-START_TEST (test_lwc_initialise_fails_with_low_memory)
-{
-        int permitted = 1;
-        fail_unless(lwc_initialise(enomem_allocator, &permitted, 0) == lwc_error_oom,
-                    "Able to initialise library with no memory available?!");
-}
-END_TEST
-
-START_TEST (test_lwc_intern_fails_with_no_memory)
-{
-        int permitted = 2; /* context and buckets */
-        lwc_string *str;
-        
-        fail_unless(lwc_initialise(enomem_allocator, &permitted, 0) == lwc_error_ok,
-                    "Unable to initialise library");
-        fail_unless(lwc_intern_string("Hello", 5, &str) == lwc_error_oom,
-                    "Able to allocate string despite enomem.");
-        
-}
-END_TEST
-
-START_TEST (test_lwc_caseless_compare_fails_with_no_memory1)
-{
-        int permitted = 3; /* ctx, buckets, 1 string */
-        lwc_string *str;
-        bool result = true;
-        
-        fail_unless(lwc_initialise(enomem_allocator, &permitted, 0) == lwc_error_ok,
-                    "Unable to initialise library");
-        fail_unless(lwc_intern_string("Hello", 5, &str) == lwc_error_ok,
-                    "Unable to allocate string.");
-        fail_unless(lwc_string_caseless_isequal(str, str, &result) == lwc_error_oom,
-                    "Able to caselessly compare despite no memory");
-        
-}
-END_TEST
-
-START_TEST (test_lwc_caseless_compare_fails_with_no_memory2)
-{
-        int permitted = 5; /* ctx, buckets, 3 strings */
-        lwc_string *str1, *str2;
-        bool result = true;
-        
-        fail_unless(lwc_initialise(enomem_allocator, &permitted, 0) == lwc_error_ok,
-                    "Unable to initialise library");
-        fail_unless(lwc_intern_string("Hello", 5, &str1) == lwc_error_ok,
-                    "Unable to allocate string.");
-        fail_unless(lwc_intern_string("World", 5, &str2) == lwc_error_ok,
-                    "Unable to allocate string.");
-        fail_unless(lwc_string_caseless_isequal(str1, str2, &result) == lwc_error_oom,
-                    "Able to caselessly compare despite no memory");
-        
-}
-END_TEST
-
 /**** The next set of tests need a fixture set ****/
 
 static void
 with_simple_context_setup(void)
 {
-        fail_unless(lwc_initialise(trivial_alloc_fn, NULL, 0) == lwc_error_ok,
-                    "Unable to initialise library");
+        /* Nothing to set up */
 }
 
 static void
@@ -234,9 +137,6 @@ static lwc_string *intern_one = NULL, *intern_two = NULL, *intern_three = NULL, 
 static void
 with_filled_context_setup(void)
 {
-        fail_unless(lwc_initialise(trivial_alloc_fn, NULL, 2) == lwc_error_ok,
-                    "Unable to initialise library");
-        
         fail_unless(lwc_intern_string("one", 3, &intern_one) == lwc_error_ok,
                     "Unable to intern 'one'");
         fail_unless(lwc_intern_string("two", 3, &intern_two) == lwc_error_ok,
@@ -479,13 +379,6 @@ lwc_basic_suite(SRunner *sr)
                                     test_lwc_string_hash_value_aborts,
                                     SIGABRT);
 #endif
-        
-        tcase_add_test(tc_basic, test_lwc_double_initialise_fails);
-        tcase_add_test(tc_basic, test_lwc_initialise_fails_with_no_memory);
-        tcase_add_test(tc_basic, test_lwc_initialise_fails_with_low_memory);
-        tcase_add_test(tc_basic, test_lwc_intern_fails_with_no_memory);
-        tcase_add_test(tc_basic, test_lwc_caseless_compare_fails_with_no_memory1);
-        tcase_add_test(tc_basic, test_lwc_caseless_compare_fails_with_no_memory2);
         
         suite_add_tcase(s, tc_basic);
         

@@ -6,6 +6,7 @@
  *		  Daniel Silverstone <dsilvers@netsurf-browser.org>
  */
 
+#include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 
@@ -47,43 +48,39 @@ struct lwc_string_s {
 #define NR_BUCKETS_DEFAULT	(4091)
 
 typedef struct lwc_context_s {
-        lwc_allocator_fn	alloc;
-        void *			alloc_pw;
         lwc_string **		buckets;
         lwc_hash		bucketcount;
 } lwc_context;
 
 static lwc_context *ctx = NULL;
 
-#define LWC_ALLOC(s) ctx->alloc(NULL, s, ctx->alloc_pw)
-#define LWC_FREE(p) ctx->alloc(p, 0, ctx->alloc_pw)
+#define LWC_ALLOC(s) malloc(s)
+#define LWC_FREE(p) free(p)
 
 typedef lwc_hash (*lwc_hasher)(const char *, size_t);
 typedef int (*lwc_strncmp)(const char *, const char *, size_t);
 typedef void (*lwc_memcpy)(char *, const char *, size_t);
 
-lwc_error
-lwc_initialise(lwc_allocator_fn alloc, void *pw, lwc_hash buckets)
+static lwc_error
+_lwc_initialise(void)
 {
         assert(alloc);
         
         if (ctx != NULL)
-                return lwc_error_initialised;
+                return lwc_error_ok;
         
-        ctx = alloc(NULL, sizeof(lwc_context), pw);
+        ctx = LWC_ALLOC(sizeof(lwc_context));
         
         if (ctx == NULL)
                 return lwc_error_oom;
         
         memset(ctx, 0, sizeof(lwc_context));
         
-        ctx->bucketcount = (buckets > 0) ? buckets : NR_BUCKETS_DEFAULT;
-        ctx->alloc = alloc;
-        ctx->alloc_pw = pw;
-        ctx->buckets = alloc(NULL, sizeof(lwc_string *) * ctx->bucketcount, pw);
+        ctx->bucketcount = NR_BUCKETS_DEFAULT;
+        ctx->buckets = LWC_ALLOC(sizeof(lwc_string *) * ctx->bucketcount);
         
         if (ctx->buckets == NULL) {
-                alloc(ctx, 0, pw);
+                LWC_FREE(ctx);
                 return lwc_error_oom;
         }
         
@@ -102,9 +99,16 @@ __lwc_intern(const char *s, size_t slen,
         lwc_hash h;
         lwc_hash bucket;
         lwc_string *str;
+        lwc_error eret;
         
         assert((s != NULL) || (slen == 0));
         assert(ret);
+        
+        if (ctx == NULL) {
+                eret = _lwc_initialise();
+                if (eret != lwc_error_ok)
+                        return eret;
+        }
         
         h = hasher(s, slen);
         bucket = h % ctx->bucketcount;
