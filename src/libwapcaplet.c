@@ -64,8 +64,6 @@ typedef void (*lwc_memcpy)(char *, const char *, size_t);
 static lwc_error
 _lwc_initialise(void)
 {
-        assert(alloc);
-        
         if (ctx != NULL)
                 return lwc_error_ok;
         
