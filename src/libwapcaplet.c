@@ -79,6 +79,7 @@ _lwc_initialise(void)
         
         if (ctx->buckets == NULL) {
                 LWC_FREE(ctx);
+		ctx = NULL;
                 return lwc_error_oom;
         }
         
@@ -323,7 +324,10 @@ lwc_iterate_strings(lwc_iteration_callback_fn cb, void *pw)
 {
         lwc_hash n;
         lwc_string *str;
-        
+       
+	if (ctx == NULL)
+		return;
+ 
         for (n = 0; n < ctx->bucketcount; ++n) {
                 for (str = ctx->buckets[n]; str != NULL; str = str->next)
                         cb(str, pw);
