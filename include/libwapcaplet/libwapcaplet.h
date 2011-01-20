@@ -37,7 +37,7 @@ typedef void (*lwc_iteration_callback_fn)(lwc_string *str, void *pw);
 typedef enum lwc_error_e {
 	lwc_error_ok		= 0,	/**< No error. */
 	lwc_error_oom		= 1,	/**< Out of memory. */
-	lwc_error_range		= 2,	/**< Substring internment out of range. */
+	lwc_error_range		= 2	/**< Substring internment out of range. */
 } lwc_error;
 
 /**
