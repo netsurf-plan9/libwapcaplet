@@ -156,7 +156,7 @@ extern lwc_error lwc_string_caseless_isequal(lwc_string *str1,
  *	 in future.  Any code relying on it currently should be
  *	 modified to use ::lwc_string_length if possible.
  */
-extern const char *lwc_string_data(lwc_string *str);
+extern const char *lwc_string_data(const lwc_string *str);
 
 /**
  * Retrieve the data length for an interned string.
@@ -164,7 +164,7 @@ extern const char *lwc_string_data(lwc_string *str);
  * @param str The string to retrieve the length of.
  * @return    The length of \a str.
  */
-extern size_t lwc_string_length(lwc_string *str);
+extern size_t lwc_string_length(const lwc_string *str);
 
 /**
  * Retrieve (or compute if unavailable) a hash value for the content of the string.

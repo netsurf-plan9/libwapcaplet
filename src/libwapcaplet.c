@@ -294,7 +294,7 @@ lwc_string_caseless_isequal(lwc_string *str1,
 /**** Simple accessors ****/
 
 const char *
-lwc_string_data(lwc_string *str)
+lwc_string_data(const lwc_string *str)
 {
         assert(str);
         
@@ -302,7 +302,7 @@ lwc_string_data(lwc_string *str)
 }
 
 size_t
-lwc_string_length(lwc_string *str)
+lwc_string_length(const lwc_string *str)
 {
         assert(str);
         
