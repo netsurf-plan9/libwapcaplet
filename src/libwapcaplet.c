@@ -19,7 +19,7 @@
 typedef uint32_t lwc_refcounter;
 
 static inline lwc_hash
-lwc_calculate_hash(const char *str, size_t len)
+lwc__calculate_hash(const char *str, size_t len)
 {
 	lwc_hash z = 0x811c9dc5;
 	
@@ -62,7 +62,7 @@ typedef int (*lwc_strncmp)(const char *, const char *, size_t);
 typedef void (*lwc_memcpy)(char *, const char *, size_t);
 
 static lwc_error
-_lwc_initialise(void)
+lwc__initialise(void)
 {
         if (ctx != NULL)
                 return lwc_error_ok;
@@ -89,11 +89,11 @@ _lwc_initialise(void)
 }
 
 static lwc_error
-__lwc_intern(const char *s, size_t slen,
-             lwc_string **ret,
-             lwc_hasher hasher,
-             lwc_strncmp compare,
-             lwc_memcpy copy)
+lwc__intern(const char *s, size_t slen,
+           lwc_string **ret,
+           lwc_hasher hasher,
+           lwc_strncmp compare,
+           lwc_memcpy copy)
 {
         lwc_hash h;
         lwc_hash bucket;
@@ -104,7 +104,7 @@ __lwc_intern(const char *s, size_t slen,
         assert(ret);
         
         if (ctx == NULL) {
-                eret = _lwc_initialise();
+                eret = lwc__initialise();
                 if (eret != lwc_error_ok)
                         return eret;
         }
@@ -153,9 +153,9 @@ lwc_error
 lwc_intern_string(const char *s, size_t slen,
                   lwc_string **ret)
 {
-        return __lwc_intern(s, slen, ret,
-                            lwc_calculate_hash,
-                            strncmp, (lwc_memcpy)memcpy);
+        return lwc__intern(s, slen, ret,
+                           lwc__calculate_hash,
+                           strncmp, (lwc_memcpy)memcpy);
 }
 
 lwc_error
@@ -213,7 +213,7 @@ lwc_string_unref(lwc_string *str)
 /**** Shonky caseless bits ****/
 
 static inline char
-dolower(const char c)
+lwc__dolower(const char c)
 {
         if (c >= 'A' && c <= 'Z')
                 return c + 'a' - 'A';
@@ -221,14 +221,14 @@ dolower(const char c)
 }
 
 static inline lwc_hash
-lwc_calculate_lcase_hash(const char *str, size_t len)
+lwc__calculate_lcase_hash(const char *str, size_t len)
 {
 	lwc_hash z = 0x811c9dc5;
 	
 
 	while (len > 0) {
 		z *= 0x01000193;
-		z ^= dolower(*str++);
+		z ^= lwc__dolower(*str++);
                 len--;
 	}
 
@@ -236,10 +236,10 @@ lwc_calculate_lcase_hash(const char *str, size_t len)
 }
 
 static int
-lwc_lcase_strncmp(const char *s1, const char *s2, size_t n)
+lwc__lcase_strncmp(const char *s1, const char *s2, size_t n)
 {
         while (n--) {
-                if (*s1++ != dolower(*s2++))
+                if (*s1++ != lwc__dolower(*s2++))
                         /** @todo Test this somehow? */
                         return 1;
         }
@@ -247,24 +247,24 @@ lwc_lcase_strncmp(const char *s1, const char *s2, size_t n)
 }
 
 static void
-lwc_lcase_memcpy(char *target, const char *source, size_t n)
+lwc__lcase_memcpy(char *target, const char *source, size_t n)
 {
         while (n--) {
-                *target++ = dolower(*source++);
+                *target++ = lwc__dolower(*source++);
         }
 }
 
 static lwc_error
-lwc_intern_caseless_string(lwc_string *str)
+lwc__intern_caseless_string(lwc_string *str)
 {
         assert(str);
         assert(str->insensitive == NULL);
         
-        return __lwc_intern(CSTR_OF(str),
-                            str->len, &(str->insensitive),
-                            lwc_calculate_lcase_hash,
-                            lwc_lcase_strncmp,
-                            lwc_lcase_memcpy);
+        return lwc__intern(CSTR_OF(str),
+                           str->len, &(str->insensitive),
+                           lwc__calculate_lcase_hash,
+                           lwc__lcase_strncmp,
+                           lwc__lcase_memcpy);
 }
 
 lwc_error
@@ -277,12 +277,12 @@ lwc_string_caseless_isequal(lwc_string *str1,
         assert(str2);
         
         if (str1->insensitive == NULL) {
-                err = lwc_intern_caseless_string(str1);
+                err = lwc__intern_caseless_string(str1);
                 if (err != lwc_error_ok)
                         return err;
         }
         if (str2->insensitive == NULL) {
-                err = lwc_intern_caseless_string(str2);
+                err = lwc__intern_caseless_string(str2);
                 if (err != lwc_error_ok)
                         return err;
         }
