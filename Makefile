@@ -13,7 +13,7 @@ TESTRUNNER = $(BUILDDIR)/test_testrunner$(EXEEXT)
 # Toolchain flags
 WARNFLAGS := -Wall -W -Wundef -Wpointer-arith -Wcast-align \
 	-Wwrite-strings -Wstrict-prototypes -Wmissing-prototypes \
-	-Wmissing-declarations -Wnested-externs -pedantic
+	-Wmissing-declarations -Wnested-externs
 # BeOS/Haiku standard library headers issue warnings
 ifneq ($(TARGET),beos)
   WARNFLAGS := $(WARNFLAGS) -Werror
