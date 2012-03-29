@@ -19,10 +19,32 @@ extern "C"
 #include <stdint.h>
 
 /**
- * An interned string.
+ * The type of a reference counter used in libwapcaplet.
  */
-typedef struct lwc_string_s lwc_string;
+typedef uint32_t lwc_refcounter;
+	
+/**
+ * The type of a hash value used in libwapcaplet.
+ */
+typedef uint32_t lwc_hash;
 
+/**
+ * An interned string.
+ *
+ * NOTE: The contents of this struct are considered *PRIVATE* and may
+ * change in future revisions.  Do not rely on them whatsoever.
+ * They're only here at all so that the ref, unref and matches etc can
+ * use them.
+ */
+typedef struct lwc_string_s {
+        struct lwc_string_s **	prevptr;
+        struct lwc_string_s *	next;
+        size_t		len;
+        lwc_hash	hash;
+        lwc_refcounter	refcnt;
+        struct lwc_string_s *	insensitive;
+} lwc_string;
+	
 /**
  * String iteration function
  *
@@ -39,11 +61,6 @@ typedef enum lwc_error_e {
 	lwc_error_oom		= 1,	/**< Out of memory. */
 	lwc_error_range		= 2	/**< Substring internment out of range. */
 } lwc_error;
-
-/**
- * The type of a hash value used in libwapcaplet.
- */
-typedef uint32_t lwc_hash;
 
 /**
  * Intern a string.
@@ -104,7 +121,7 @@ extern lwc_error lwc_intern_substring(lwc_string *str,
  * @note Use this if copying the string and intending both sides to retain
  * ownership.
  */
-extern lwc_string *lwc_string_ref(lwc_string *str);
+#define lwc_string_ref(str) ({lwc_string *__lwc_s = (str); __lwc_s->refcnt++; __lwc_s;})
 
 /**
  * Release a reference on an lwc_string.
@@ -112,13 +129,27 @@ extern lwc_string *lwc_string_ref(lwc_string *str);
  * This decreases the reference count on the given ::lwc_string.
  *
  * @param str The string to unref.
- * @return    The result of the operation, if not OK then the string
- *	      was not unreffed.
  *
  * @note If the reference count reaches zero then the string will be
- *       freed.
+ *       freed. (Ref count of 1 where string is its own insensitve match
+ *       will also result in the string being freed.)
  */
-extern void lwc_string_unref(lwc_string *str);
+#define lwc_string_unref(str) {						\
+		lwc_string *__lwc_s = (str);					\
+		__lwc_s->refcnt--;						\
+		if ((__lwc_s->refcnt == 0) ||					\
+		    ((__lwc_s->refcnt == 1) && (__lwc_s->insensitive == __lwc_s)))	\
+			lwc_string_destroy(__lwc_s);				\
+	}
+	
+/**
+ * Destroy an unreffed lwc_string.
+ *
+ * This destroys an lwc_string whose reference count indicates that it should be.
+ *
+ * @param str The string to unref.
+ */
+extern void lwc_string_destroy(lwc_string *str);
 
 /**
  * Check if two interned strings are equal.
@@ -141,9 +172,37 @@ extern void lwc_string_unref(lwc_string *str);
  * @return     Result of operation, if not ok then value pointed to
  *	       by \a ret will not be valid.
  */
-extern lwc_error lwc_string_caseless_isequal(lwc_string *str1,
-                                             lwc_string *str2,
-                                             bool *ret);
+#define lwc_string_caseless_isequal(_str1,_str2,_ret) ({	\
+			lwc_error __lwc_err = lwc_error_ok;		\
+			lwc_string *__lwc_str1 = (_str1);		\
+			lwc_string *__lwc_str2 = (_str2);		\
+			bool *__lwc_ret = (_ret);			\
+								\
+			if (__lwc_str1->insensitive == NULL) {		\
+				__lwc_err = lwc__intern_caseless_string(__lwc_str1); \
+			}						\
+			if (__lwc_err == lwc_error_ok && __lwc_str2->insensitive == NULL) {	\
+				__lwc_err = lwc__intern_caseless_string(__lwc_str2); \
+			}						\
+			if (__lwc_err == lwc_error_ok)			\
+				*__lwc_ret = (__lwc_str1->insensitive == __lwc_str2->insensitive); \
+			__lwc_err;						\
+		})
+	
+/**
+ * Intern a caseless copy of the passed string.
+ *
+ * @param str The string to intern the caseless copy of.
+ *
+ * @return    lwc_error_ok if successful, otherwise the
+ *            error code describing the issue.,
+ *
+ * @note This is for "internal" use by the caseless comparison
+ *       macro and not for users.
+ */	
+extern lwc_error
+lwc__intern_caseless_string(lwc_string *str);
+	
 /**
  * Retrieve the data pointer for an interned string.
  *
@@ -156,7 +215,7 @@ extern lwc_error lwc_string_caseless_isequal(lwc_string *str1,
  *	 in future.  Any code relying on it currently should be
  *	 modified to use ::lwc_string_length if possible.
  */
-extern const char *lwc_string_data(const lwc_string *str);
+#define lwc_string_data(str) ((const char *)((str)+1))
 
 /**
  * Retrieve the data length for an interned string.
@@ -164,7 +223,7 @@ extern const char *lwc_string_data(const lwc_string *str);
  * @param str The string to retrieve the length of.
  * @return    The length of \a str.
  */
-extern size_t lwc_string_length(const lwc_string *str);
+#define lwc_string_length(str) ((str)->len)
 
 /**
  * Retrieve (or compute if unavailable) a hash value for the content of the string.
@@ -178,7 +237,7 @@ extern size_t lwc_string_length(const lwc_string *str);
  *	 to be stable between invocations of the program. Never use the hash
  *	 value as a way to directly identify the value of the string.
  */
-extern uint32_t lwc_string_hash_value(lwc_string *str);
+#define lwc_string_hash_value(str) ((str)->hash)
 
 /**
  * Iterate the context and return every string in it.

@@ -16,8 +16,6 @@
 #define UNUSED(x) ((x) = (x))
 #endif
 
-typedef uint32_t lwc_refcounter;
-
 static inline lwc_hash
 lwc__calculate_hash(const char *str, size_t len)
 {
@@ -32,15 +30,6 @@ lwc__calculate_hash(const char *str, size_t len)
 
 	return z;
 }
-
-struct lwc_string_s {
-        lwc_string **	prevptr;
-        lwc_string *	next;
-        size_t		len;
-        lwc_hash	hash;
-        lwc_refcounter	refcnt;
-        lwc_string *	insensitive;
-};
 
 #define STR_OF(str) ((char *)(str + 1))
 #define CSTR_OF(str) ((const char *)(str + 1))
@@ -174,26 +163,10 @@ lwc_intern_substring(lwc_string *str,
         return lwc_intern_string(CSTR_OF(str) + ssoffset, sslen, ret);
 }
 
-lwc_string *
-lwc_string_ref(lwc_string *str)
-{
-        assert(str);
-        
-        str->refcnt++;
-        
-        return str;
-}
-
 void
-lwc_string_unref(lwc_string *str)
+lwc_string_destroy(lwc_string *str)
 {
         assert(str);
-        
-        if (--(str->refcnt) > 1)
-                return;
-        
-        if ((str->refcnt == 1) && (str->insensitive != str))
-                return;
         
         *(str->prevptr) = str->next;
         
@@ -254,7 +227,7 @@ lwc__lcase_memcpy(char *target, const char *source, size_t n)
         }
 }
 
-static lwc_error
+lwc_error
 lwc__intern_caseless_string(lwc_string *str)
 {
         assert(str);
@@ -265,56 +238,6 @@ lwc__intern_caseless_string(lwc_string *str)
                            lwc__calculate_lcase_hash,
                            lwc__lcase_strncmp,
                            lwc__lcase_memcpy);
-}
-
-lwc_error
-lwc_string_caseless_isequal(lwc_string *str1,
-                            lwc_string *str2,
-                            bool *ret)
-{
-        lwc_error err;
-        assert(str1);
-        assert(str2);
-        
-        if (str1->insensitive == NULL) {
-                err = lwc__intern_caseless_string(str1);
-                if (err != lwc_error_ok)
-                        return err;
-        }
-        if (str2->insensitive == NULL) {
-                err = lwc__intern_caseless_string(str2);
-                if (err != lwc_error_ok)
-                        return err;
-        }
-        
-        *ret = (str1->insensitive == str2->insensitive);
-        return lwc_error_ok;
-}
-
-/**** Simple accessors ****/
-
-const char *
-lwc_string_data(const lwc_string *str)
-{
-        assert(str);
-        
-        return CSTR_OF(str);
-}
-
-size_t
-lwc_string_length(const lwc_string *str)
-{
-        assert(str);
-        
-        return str->len;
-}
-
-uint32_t
-lwc_string_hash_value(lwc_string *str)
-{
-	assert(str);
-
-	return str->hash;
 }
 
 /**** Iteration ****/
