@@ -294,7 +294,7 @@ END_TEST
 
 START_TEST (test_lwc_string_hash_value_ok)
 {
-        lwc_string_hash_value(intern_one);
+        (void)lwc_string_hash_value(intern_one);
 }
 END_TEST
 
