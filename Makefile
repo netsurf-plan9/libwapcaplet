@@ -5,7 +5,9 @@ COMPONENT_VERSION := 0.1.1
 COMPONENT_TYPE ?= lib-static
 
 # Setup the tooling
-include build/makefiles/Makefile.tools
+PREFIX ?= /opt/netsurf
+NSSHARED ?= $(PREFIX)/share/netsurf-buildsystem
+include $(NSSHARED)/makefiles/Makefile.tools
 
 # Reevaluate when used, as BUILDDIR won't be defined yet
 TESTRUNNER = $(BUILDDIR)/test_testrunner$(EXEEXT)
@@ -27,7 +29,7 @@ else
   CFLAGS := $(CFLAGS) -Dinline="__inline__"
 endif
 
-include build/makefiles/Makefile.top
+include $(NSBUILD)/Makefile.top
 
 ifeq ($(WANT_TEST),yes)
   ifneq ($(PKGCONFIG),)

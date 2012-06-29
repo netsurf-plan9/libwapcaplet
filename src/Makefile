@@ -1,3 +1,3 @@
 DIR_SOURCES := libwapcaplet.c
 
-include build/makefiles/Makefile.subdir
+include $(NSBUILD)/Makefile.subdir
