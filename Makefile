@@ -41,7 +41,7 @@ ifeq ($(WANT_TEST),yes)
 endif
 
 # Extra installation rules
-I := /include/libwapcaplet
+I := /$(INCLUDEDIR)/libwapcaplet
 INSTALL_ITEMS := $(INSTALL_ITEMS) $(I):include/libwapcaplet/libwapcaplet.h
 INSTALL_ITEMS := $(INSTALL_ITEMS) /$(LIBDIR)/pkgconfig:lib$(COMPONENT).pc.in
 INSTALL_ITEMS := $(INSTALL_ITEMS) /$(LIBDIR):$(OUTPUT)
