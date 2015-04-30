@@ -58,7 +58,7 @@ END_TEST
 
 START_TEST (test_lwc_string_unref_aborts)
 {
-        lwc_string_unref(lwc_null);
+        lwc_string_unref(null_lwc);
 }
 END_TEST
 
