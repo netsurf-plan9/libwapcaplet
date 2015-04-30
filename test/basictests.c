@@ -24,13 +24,13 @@ lwc_string **null_lwc_p = NULL;
 /* All the basic assert() tests */
 START_TEST (test_lwc_intern_string_aborts1)
 {
-        lwc_intern_string(NULL, 0, null_lwc_p);
+        (void) lwc_intern_string(NULL, 0, null_lwc_p);
 }
 END_TEST
 
 START_TEST (test_lwc_intern_string_aborts2)
 {
-        lwc_intern_string("A", 1, null_lwc_p);
+        (void) lwc_intern_string("A", 1, null_lwc_p);
 }
 END_TEST
 
@@ -64,19 +64,19 @@ END_TEST
 
 START_TEST (test_lwc_string_data_aborts)
 {
-        lwc_string_data(null_lwc);
+        (void) lwc_string_data(null_lwc);
 }
 END_TEST
 
 START_TEST (test_lwc_string_length_aborts)
 {
-        lwc_string_length(null_lwc);
+        (void) lwc_string_length(null_lwc);
 }
 END_TEST
 
 START_TEST (test_lwc_string_hash_value_aborts)
 {
-        lwc_string_hash_value(null_lwc);
+        (void) lwc_string_hash_value(null_lwc);
 }
 END_TEST
 
