@@ -19,23 +19,24 @@
 #ifndef NDEBUG
 
 lwc_string *null_lwc = NULL;
+lwc_string **null_lwc_p = NULL;
 
 /* All the basic assert() tests */
 START_TEST (test_lwc_intern_string_aborts1)
 {
-        lwc_intern_string(NULL, 0, null_lwc);
+        lwc_intern_string(NULL, 0, null_lwc_p);
 }
 END_TEST
 
 START_TEST (test_lwc_intern_string_aborts2)
 {
-        lwc_intern_string("A", 1, null_lwc);
+        lwc_intern_string("A", 1, null_lwc_p);
 }
 END_TEST
 
 START_TEST (test_lwc_intern_substring_aborts1)
 {
-        lwc_intern_substring(null_lwc, 0, 0, null_lwc);
+        lwc_intern_substring(null_lwc, 0, 0, null_lwc_p);
 }
 END_TEST
 
@@ -45,7 +46,7 @@ START_TEST (test_lwc_intern_substring_aborts2)
         fail_unless(lwc_intern_string("Jam", 3, &str) == lwc_error_ok,
                     "unable to intern 'Jam'");
         
-        lwc_intern_substring(str, 88, 77, null_lwc);
+        lwc_intern_substring(str, 88, 77, null_lwc_p);
 }
 END_TEST
 
