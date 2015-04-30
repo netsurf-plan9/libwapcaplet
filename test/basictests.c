@@ -17,22 +17,25 @@
 #endif
 
 #ifndef NDEBUG
+
+lwc_string *null_lwc = NULL;
+
 /* All the basic assert() tests */
 START_TEST (test_lwc_intern_string_aborts1)
 {
-        lwc_intern_string(NULL, 0, NULL);
+        lwc_intern_string(NULL, 0, null_lwc);
 }
 END_TEST
 
 START_TEST (test_lwc_intern_string_aborts2)
 {
-        lwc_intern_string("A", 1, NULL);
+        lwc_intern_string("A", 1, null_lwc);
 }
 END_TEST
 
 START_TEST (test_lwc_intern_substring_aborts1)
 {
-        lwc_intern_substring(NULL, 0, 0, NULL);
+        lwc_intern_substring(null_lwc, 0, 0, null_lwc);
 }
 END_TEST
 
@@ -42,37 +45,37 @@ START_TEST (test_lwc_intern_substring_aborts2)
         fail_unless(lwc_intern_string("Jam", 3, &str) == lwc_error_ok,
                     "unable to intern 'Jam'");
         
-        lwc_intern_substring(str, 88, 77, NULL);
+        lwc_intern_substring(str, 88, 77, null_lwc);
 }
 END_TEST
 
 START_TEST (test_lwc_string_ref_aborts)
 {
-        lwc_string_ref(NULL);
+        lwc_string_ref(null_lwc);
 }
 END_TEST
 
 START_TEST (test_lwc_string_unref_aborts)
 {
-        lwc_string_unref(NULL);
+        lwc_string_unref(lwc_null);
 }
 END_TEST
 
 START_TEST (test_lwc_string_data_aborts)
 {
-        lwc_string_data(NULL);
+        lwc_string_data(null_lwc);
 }
 END_TEST
 
 START_TEST (test_lwc_string_length_aborts)
 {
-        lwc_string_length(NULL);
+        lwc_string_length(null_lwc);
 }
 END_TEST
 
 START_TEST (test_lwc_string_hash_value_aborts)
 {
-        lwc_string_hash_value(NULL);
+        lwc_string_hash_value(null_lwc);
 }
 END_TEST
 
