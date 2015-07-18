@@ -16,8 +16,16 @@
 #endif
 
 /* This means that assertion failures are silent in tests */
-extern void __assert_fail(void);
-void __assert_fail(void) { abort(); }
+#ifndef NDEBUG
+void __assert_fail(const char *__assertion, const char *__file,
+		   unsigned int __line, const char *__function) {
+	(void)__assertion;
+	(void)__file;
+	(void)__line;
+	(void)__function;
+	abort();
+}
+#endif
 
 int
 main(int argc, char **argv)
