@@ -112,9 +112,9 @@ extern lwc_error lwc_intern_substring(lwc_string *str,
  * use this when copying a string pointer into a persistent data
  * structure.
  *
- * @verb
+ * @verbatim
  *   myobject->str = lwc_string_ref(myparent->str);
- * @endverb
+ * @endverbatim
  *
  * @param str The string to create another reference to.
  * @return    The string pointer to use in your new data structure.
@@ -168,28 +168,28 @@ extern void lwc_string_destroy(lwc_string *str);
 /**
  * Check if two interned strings are case-insensitively equal.
  *
- * @param str1 The first string in the comparison.
- * @param str2 The second string in the comparison.
- * @param ret  A pointer to a boolean to be filled out with the result.
- * @return     Result of operation, if not ok then value pointed to
- *	       by \a ret will not be valid.
+ * @param _str1 The first string in the comparison.
+ * @param _str2 The second string in the comparison.
+ * @param _ret  A pointer to a boolean to be filled out with the result.
+ * @return Result of operation, if not ok then value pointed to by \a ret will
+ *	    not be valid.
  */
-#define lwc_string_caseless_isequal(_str1,_str2,_ret) ({	\
-			lwc_error __lwc_err = lwc_error_ok;		\
-			lwc_string *__lwc_str1 = (_str1);		\
-			lwc_string *__lwc_str2 = (_str2);		\
-			bool *__lwc_ret = (_ret);			\
-								\
-			if (__lwc_str1->insensitive == NULL) {		\
-				__lwc_err = lwc__intern_caseless_string(__lwc_str1); \
-			}						\
-			if (__lwc_err == lwc_error_ok && __lwc_str2->insensitive == NULL) {	\
-				__lwc_err = lwc__intern_caseless_string(__lwc_str2); \
-			}						\
-			if (__lwc_err == lwc_error_ok)			\
-				*__lwc_ret = (__lwc_str1->insensitive == __lwc_str2->insensitive); \
-			__lwc_err;						\
-		})
+#define lwc_string_caseless_isequal(_str1,_str2,_ret) ({                \
+            lwc_error __lwc_err = lwc_error_ok;                         \
+            lwc_string *__lwc_str1 = (_str1);                           \
+            lwc_string *__lwc_str2 = (_str2);                           \
+            bool *__lwc_ret = (_ret);                                   \
+                                                                        \
+            if (__lwc_str1->insensitive == NULL) {                      \
+                __lwc_err = lwc__intern_caseless_string(__lwc_str1);    \
+            }                                                           \
+            if (__lwc_err == lwc_error_ok && __lwc_str2->insensitive == NULL) { \
+                __lwc_err = lwc__intern_caseless_string(__lwc_str2);    \
+            }                                                           \
+            if (__lwc_err == lwc_error_ok)                              \
+                *__lwc_ret = (__lwc_str1->insensitive == __lwc_str2->insensitive); \
+            __lwc_err;                                                  \
+        })
 	
 /**
  * Intern a caseless copy of the passed string.
