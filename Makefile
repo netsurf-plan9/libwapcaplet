@@ -2,11 +2,11 @@
 #
 # Makefile for wapcaplet
 #
-# Copyright 2009-1015 John-Mark Bell <jmb@netsurf-browser.org>
+# Copyright 2009-2015 John-Mark Bell <jmb@netsurf-browser.org>
 
 # Component settings
 COMPONENT := wapcaplet
-COMPONENT_VERSION := 0.2.2
+COMPONENT_VERSION := 0.2.3
 # Default to a static library
 COMPONENT_TYPE ?= lib-static
 
