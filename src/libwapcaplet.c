@@ -164,6 +164,25 @@ lwc_intern_substring(lwc_string *str,
 	return lwc_intern_string(CSTR_OF(str) + ssoffset, sslen, ret);
 }
 
+lwc_error
+lwc_string_tolower(lwc_string *str, lwc_string **ret)
+{
+	assert(str);
+	assert(ret);
+
+	/* Internally make use of knowledge that insensitive strings
+	 * are lower case. */
+	if (str->insensitive == NULL) {
+		lwc_error error = lwc__intern_caseless_string(str);
+		if (error != lwc_error_ok) {
+			return error;
+		}
+	}
+
+	*ret = lwc_string_ref(str->insensitive);
+	return lwc_error_ok;
+}
+
 void
 lwc_string_destroy(lwc_string *str)
 {
