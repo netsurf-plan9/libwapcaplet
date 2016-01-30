@@ -50,6 +50,22 @@ START_TEST (test_lwc_intern_substring_aborts2)
 }
 END_TEST
 
+START_TEST (test_lwc_string_tolower_aborts1)
+{
+        lwc_string_tolower(null_lwc, null_lwc_p);
+}
+END_TEST
+
+START_TEST (test_lwc_string_tolower_aborts2)
+{
+        lwc_string *str;
+        fail_unless(lwc_intern_string("Badger", 6, &str) == lwc_error_ok,
+                    "unable to intern 'Badger'");
+
+        lwc_string_tolower(str, null_lwc_p);
+}
+END_TEST
+
 START_TEST (test_lwc_string_ref_aborts)
 {
         lwc_string_ref(null_lwc);
@@ -330,6 +346,41 @@ START_TEST (test_lwc_substring_is_nul_terminated)
 }
 END_TEST
 
+START_TEST (test_lwc_string_tolower_ok1)
+{
+        bool result = true;
+        lwc_string *new_ONE;
+        lwc_string *new_one;
+
+        fail_unless(lwc_intern_string("ONE", 3, &new_ONE) == lwc_error_ok,
+                    "Failure interning 'ONE'");
+        fail_unless(lwc_string_tolower(new_ONE, &new_one) == lwc_error_ok);
+        fail_unless(lwc_string_isequal(intern_one, new_ONE, &result) == lwc_error_ok);
+        fail_unless(result == false, "'one' == 'ONE' ?!");
+        fail_unless(lwc_string_isequal(intern_one, new_one, &result) == lwc_error_ok);
+        fail_unless(result == true, "'one' != 'one' ?!");
+}
+END_TEST
+
+START_TEST (test_lwc_string_tolower_ok2)
+{
+        bool result = true;
+        lwc_string *new_ONE;
+        lwc_string *new_one;
+
+        fail_unless(lwc_intern_string("ONE", 3, &new_ONE) == lwc_error_ok,
+                    "Failure interning 'ONE'");
+        /* Ensure new_ONE has an insensitive pointer set */
+        fail_unless(lwc_string_caseless_isequal(intern_one, new_ONE, &result) == lwc_error_ok);
+        fail_unless(result == true, "'one' != 'ONE' (caseless) ?!");
+        fail_unless(lwc_string_tolower(new_ONE, &new_one) == lwc_error_ok);
+        fail_unless(lwc_string_isequal(intern_one, new_ONE, &result) == lwc_error_ok);
+        fail_unless(result == false, "'one' == 'ONE' ?!");
+        fail_unless(lwc_string_isequal(intern_one, new_one, &result) == lwc_error_ok);
+        fail_unless(result == true, "'one' != 'one' ?!");
+}
+END_TEST
+
 static void
 counting_cb(lwc_string *str, void *pw)
 {
@@ -366,6 +417,12 @@ lwc_basic_suite(SRunner *sr)
                                     SIGABRT);
         tcase_add_test_raise_signal(tc_basic,
                                     test_lwc_intern_substring_aborts2,
+                                    SIGABRT);
+        tcase_add_test_raise_signal(tc_basic,
+                                    test_lwc_string_tolower_aborts1,
+                                    SIGABRT);
+        tcase_add_test_raise_signal(tc_basic,
+                                    test_lwc_string_tolower_aborts2,
                                     SIGABRT);
         tcase_add_test_raise_signal(tc_basic,
                                     test_lwc_string_ref_aborts,
@@ -408,6 +465,8 @@ lwc_basic_suite(SRunner *sr)
         tcase_add_test(tc_basic, test_lwc_string_caseless_isequal_ok1);
         tcase_add_test(tc_basic, test_lwc_string_caseless_isequal_ok2);
         tcase_add_test(tc_basic, test_lwc_string_caseless_isequal_bad);
+        tcase_add_test(tc_basic, test_lwc_string_tolower_ok1);
+        tcase_add_test(tc_basic, test_lwc_string_tolower_ok2);
         tcase_add_test(tc_basic, test_lwc_extract_data_ok);
         tcase_add_test(tc_basic, test_lwc_string_hash_value_ok);
         tcase_add_test(tc_basic, test_lwc_string_is_nul_terminated);
