@@ -106,6 +106,16 @@ extern lwc_error lwc_intern_substring(lwc_string *str,
                                       lwc_string **ret);
 
 /**
+ * Optain a lowercased lwc_string from given lwc_string.
+ *
+ * @param str  String to create lowercase string from.
+ * @param ret  Pointer to ::lwc_string pointer to fill out.
+ * @return     Result of operation, if not OK then the value pointed
+ *             to by \a ret will not be valid.
+ */
+extern lwc_error lwc_string_tolower(lwc_string *str, lwc_string **ret);
+
+/**
  * Increment the reference count on an lwc_string.
  *
  * This increases the reference count on the given string. You should
