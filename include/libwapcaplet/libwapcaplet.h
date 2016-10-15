@@ -16,6 +16,7 @@ extern "C"
 
 #include <sys/types.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <assert.h>
 
@@ -259,7 +260,6 @@ lwc__intern_caseless_string(lwc_string *str);
  * @return Result of operation, if not ok then value pointed to by \a ret will
  *      not be valid.
  */
-/*
 static inline lwc_error lwc_string_caseless_hash_value(
 	lwc_string *str, lwc_hash *hash)
 {
@@ -273,7 +273,7 @@ static inline lwc_error lwc_string_caseless_hash_value(
 	*hash = str->insensitive->hash;
 	return lwc_error_ok;
 }
-*/
+
 
 /**
  * Iterate the context and return every string in it.
