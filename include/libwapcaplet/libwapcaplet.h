@@ -252,6 +252,30 @@ lwc__intern_caseless_string(lwc_string *str);
 #define lwc_string_hash_value(str) ({assert(str != NULL); (str)->hash;})
 
 /**
+ * Retrieve a hash value for the caseless content of the string.
+ *
+ * @param str   The string to get caseless hash value for.
+ * @param hash  A pointer to a hash value to be filled out with the result.
+ * @return Result of operation, if not ok then value pointed to by \a ret will
+ *      not be valid.
+ */
+/*
+static inline lwc_error lwc_string_caseless_hash_value(
+	lwc_string *str, lwc_hash *hash)
+{
+	if (str->insensitive == NULL) {
+		lwc_error err = lwc__intern_caseless_string(str);
+		if (err != lwc_error_ok) {
+			return err;
+		}
+	}
+
+	*hash = str->insensitive->hash;
+	return lwc_error_ok;
+}
+*/
+
+/**
  * Iterate the context and return every string in it.
  *
  * @param cb The callback to give the string to.
