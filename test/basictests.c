@@ -174,7 +174,8 @@ with_filled_context_setup(void)
 static void
 with_filled_context_teardown(void)
 {
-        lwc_string_unref(intern_one);
+        if (intern_one != NULL)
+                lwc_string_unref(intern_one);
         lwc_string_unref(intern_two);
         lwc_string_unref(intern_three);
         lwc_string_unref(intern_YAY);
@@ -234,6 +235,7 @@ END_TEST
 START_TEST (test_lwc_string_unref_ok)
 {
         lwc_string_unref(intern_one);
+        intern_one = NULL;
 }
 END_TEST
 
