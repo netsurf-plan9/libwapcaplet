@@ -6,7 +6,7 @@
 
 # Component settings
 COMPONENT := wapcaplet
-COMPONENT_VERSION := 0.4.0
+COMPONENT_VERSION := 0.4.1
 # Default to a static library
 COMPONENT_TYPE ?= lib-static
 
