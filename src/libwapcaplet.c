@@ -239,7 +239,7 @@ lwc__lcase_strncmp(const char *s1, const char *s2, size_t n)
 }
 
 static void
-lwc__lcase_memcpy(char *target, const char *source, size_t n)
+lwc__lcase_memcpy(char *restrict target, const char *restrict source, size_t n)
 {
 	while (n--) {
 		*target++ = lwc__dolower(*source++);
