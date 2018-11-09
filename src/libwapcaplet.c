@@ -47,7 +47,7 @@ static lwc_context *ctx = NULL;
 
 typedef lwc_hash (*lwc_hasher)(const char *, size_t);
 typedef int (*lwc_strncmp)(const char *, const char *, size_t);
-typedef void (*lwc_memcpy)(char *, const char *, size_t);
+typedef void (*lwc_memcpy)(char * restrict, const char * restrict, size_t);
 
 static lwc_error
 lwc__initialise(void)
