@@ -47,7 +47,7 @@ static lwc_context *ctx = NULL;
 
 typedef lwc_hash (*lwc_hasher)(const char *, size_t);
 typedef int (*lwc_strncmp)(const char *, const char *, size_t);
-typedef void (*lwc_memcpy)(char * restrict, const char * restrict, size_t);
+typedef void * (*lwc_memcpy)(void * restrict, const void * restrict, size_t);
 
 static lwc_error
 lwc__initialise(void)
@@ -238,12 +238,17 @@ lwc__lcase_strncmp(const char *s1, const char *s2, size_t n)
 	return 0;
 }
 
-static void
-lwc__lcase_memcpy(char *restrict target, const char *restrict source, size_t n)
+static void *
+lwc__lcase_memcpy(void *restrict _target, const void *restrict _source, size_t n)
 {
+	char *restrict target = _target;
+	const char *restrict source = _source;
+
 	while (n--) {
 		*target++ = lwc__dolower(*source++);
 	}
+
+	return _target;
 }
 
 lwc_error
