@@ -271,12 +271,22 @@ lwc_iterate_strings(lwc_iteration_callback_fn cb, void *pw)
 {
 	lwc_hash n;
 	lwc_string *str;
+	bool found = false;
 
 	if (ctx == NULL)
 		return;
 
 	for (n = 0; n < ctx->bucketcount; ++n) {
-		for (str = ctx->buckets[n]; str != NULL; str = str->next)
+		for (str = ctx->buckets[n]; str != NULL; str = str->next) {
+			found = true;
 			cb(str, pw);
+		}
+	}
+
+	if (found == false) {
+		/* We found no strings, so remove the global context. */
+		free(ctx->buckets);
+		free(ctx);
+		ctx = NULL;
 	}
 }

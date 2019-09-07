@@ -278,6 +278,10 @@ static inline lwc_error lwc_string_caseless_hash_value(
 /**
  * Iterate the context and return every string in it.
  *
+ * If there are no strings found in the context, then this has the
+ * side effect of removing the global context which will reduce the
+ * chances of false-positives on leak checkers.
+ *
  * @param cb The callback to give the string to.
  * @param pw The private word for the callback.
  */
