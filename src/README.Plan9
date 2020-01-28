@@ -1,0 +1,8 @@
+libwapcaplet.[ch]:
+The newest version of the the header file contained
+some macro definitions not compatible with the Plan 9
+compiler. These where reverted back to using proper
+functions (instead of macros), with the help of an
+older version of the library that was less optimised.
+
+
