@@ -47,7 +47,7 @@ static lwc_context *ctx = NULL;
 
 typedef lwc_hash (*lwc_hasher)(const char *, size_t);
 typedef int (*lwc_strncmp)(const char *, const char *, size_t);
-typedef void * (*lwc_memcpy)(void * restrict, const void * restrict, size_t);
+typedef void (*lwc_memcpy)(char *, const char *, size_t);
 
 static lwc_error
 lwc__initialise(void)
@@ -238,17 +238,12 @@ lwc__lcase_strncmp(const char *s1, const char *s2, size_t n)
 	return 0;
 }
 
-static void *
-lwc__lcase_memcpy(void *restrict _target, const void *restrict _source, size_t n)
+static void
+lwc__lcase_memcpy(char *target, const char *source, size_t n)
 {
-	char *restrict target = _target;
-	const char *restrict source = _source;
-
 	while (n--) {
 		*target++ = lwc__dolower(*source++);
 	}
-
-	return _target;
 }
 
 lwc_error
@@ -279,4 +274,63 @@ lwc_iterate_strings(lwc_iteration_callback_fn cb, void *pw)
 		for (str = ctx->buckets[n]; str != NULL; str = str->next)
 			cb(str, pw);
 	}
+}
+
+/*** added macro expansions ***/
+
+lwc_string *
+lwc_string_ref(lwc_string *str)
+{
+        assert(str);
+        str->refcnt++;
+        return str;
+}
+
+
+size_t
+lwc_string_length(const lwc_string *str)
+{
+        assert(str);
+        
+        return str->len;
+}
+
+lwc_error
+lwc_string_caseless_isequal(lwc_string *str1,
+                            lwc_string *str2,
+                            bool *ret)
+{
+        lwc_error err;
+        assert(str1);
+        assert(str2);
+        
+        if (str1->insensitive == NULL) {
+                err = lwc__intern_caseless_string(str1);
+                if (err != lwc_error_ok)
+                        return err;
+        }
+        if (str2->insensitive == NULL) {
+                err = lwc__intern_caseless_string(str2);
+                if (err != lwc_error_ok)
+                        return err;
+        }
+        
+        *ret = (str1->insensitive == str2->insensitive);
+        return lwc_error_ok;
+}
+
+const char *
+lwc_string_data(const lwc_string *str)
+{
+        assert(str);
+        
+        return CSTR_OF(str);
+}
+
+uint32_t
+lwc_string_hash_value(lwc_string *str)
+{
+	assert(str);
+
+	return str->hash;
 }
