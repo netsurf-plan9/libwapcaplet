@@ -266,71 +266,22 @@ lwc_iterate_strings(lwc_iteration_callback_fn cb, void *pw)
 {
 	lwc_hash n;
 	lwc_string *str;
+	bool found = false;
 
 	if (ctx == NULL)
 		return;
 
 	for (n = 0; n < ctx->bucketcount; ++n) {
-		for (str = ctx->buckets[n]; str != NULL; str = str->next)
+		for (str = ctx->buckets[n]; str != NULL; str = str->next) {
+			found = true;
 			cb(str, pw);
+		}
 	}
-}
 
-/*** added macro expansions ***/
-
-lwc_string *
-lwc_string_ref(lwc_string *str)
-{
-        assert(str);
-        str->refcnt++;
-        return str;
-}
-
-
-size_t
-lwc_string_length(const lwc_string *str)
-{
-        assert(str);
-        
-        return str->len;
-}
-
-lwc_error
-lwc_string_caseless_isequal(lwc_string *str1,
-                            lwc_string *str2,
-                            bool *ret)
-{
-        lwc_error err;
-        assert(str1);
-        assert(str2);
-        
-        if (str1->insensitive == NULL) {
-                err = lwc__intern_caseless_string(str1);
-                if (err != lwc_error_ok)
-                        return err;
-        }
-        if (str2->insensitive == NULL) {
-                err = lwc__intern_caseless_string(str2);
-                if (err != lwc_error_ok)
-                        return err;
-        }
-        
-        *ret = (str1->insensitive == str2->insensitive);
-        return lwc_error_ok;
-}
-
-const char *
-lwc_string_data(const lwc_string *str)
-{
-        assert(str);
-        
-        return CSTR_OF(str);
-}
-
-uint32_t
-lwc_string_hash_value(lwc_string *str)
-{
-	assert(str);
-
-	return str->hash;
+	if (found == false) {
+		/* We found no strings, so remove the global context. */
+		free(ctx->buckets);
+		free(ctx);
+		ctx = NULL;
+	}
 }

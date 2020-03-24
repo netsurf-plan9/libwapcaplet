@@ -1,18 +1,8 @@
 </$objtype/mkfile
 
-CC=pcc
+LIB=libwapcaplet.$O.a
 OBJ=libwapcaplet.$O
 HFILES=../include/libwapcaplet/libwapcaplet.h
 
-CFLAGS=-I ../include -I ../../posix/include
-
-all:V:	libwapcaplet.$O.a
-
-libwapcaplet.$O.a: $OBJ $HFILES
-	ar rv libwapcaplet.$O.a $OBJ
-
-libwapcaplet.$O: libwapcaplet.c $HFILES
-	$CC $CFLAGS -c -o $OBJ libwapcaplet.c
-
-clean:V:
-	rm -f $OBJ libwapcaplet.$O.a
+<../../nsport.mk
+<../../nsportlib.mk
