@@ -133,7 +133,17 @@ extern lwc_error lwc_string_tolower(lwc_string *str, lwc_string **ret);
  * @note Use this if copying the string and intending both sides to retain
  * ownership.
  */
+#if defined(STMTEXPR)
 #define lwc_string_ref(str) ({lwc_string *__lwc_s = (str); assert(__lwc_s != NULL); __lwc_s->refcnt++; __lwc_s;})
+#else
+static inline lwc_string *
+lwc_string_ref(lwc_string *str)
+{
+	assert(str != NULL);
+	str->refcnt++;
+	return str;
+}
+#endif
 
 /**
  * Release a reference on an lwc_string.
@@ -177,6 +187,21 @@ extern void lwc_string_destroy(lwc_string *str);
 	((*(ret) = ((str1) == (str2))), lwc_error_ok)
 
 /**
+ * Intern a caseless copy of the passed string.
+ *
+ * @param str The string to intern the caseless copy of.
+ *
+ * @return    lwc_error_ok if successful, otherwise the
+ *            error code describing the issue.,
+ *
+ * @note This is for "internal" use by the caseless comparison
+ *       macro and not for users.
+ */
+extern lwc_error
+lwc__intern_caseless_string(lwc_string *str);
+
+#if defined(STMTEXPR)
+/**
  * Check if two interned strings are case-insensitively equal.
  *
  * @param _str1 The first string in the comparison.
@@ -202,19 +227,37 @@ extern void lwc_string_destroy(lwc_string *str);
             __lwc_err;                                                  \
         })
 	
+#else
 /**
- * Intern a caseless copy of the passed string.
+ * Check if two interned strings are case-insensitively equal.
  *
- * @param str The string to intern the caseless copy of.
- *
- * @return    lwc_error_ok if successful, otherwise the
- *            error code describing the issue.,
- *
- * @note This is for "internal" use by the caseless comparison
- *       macro and not for users.
- */	
-extern lwc_error
-lwc__intern_caseless_string(lwc_string *str);
+ * @param str1 The first string in the comparison.
+ * @param str2 The second string in the comparison.
+ * @param ret  A pointer to a boolean to be filled out with the result.
+ * @return Result of operation, if not ok then value pointed to by \a ret will
+ *         not be valid.
+ */
+static inline lwc_error
+lwc_string_caseless_isequal(lwc_string *str1, lwc_string *str2, bool *ret)
+{
+       lwc_error err = lwc_error_ok;
+       if (str1->insensitive == NULL) {
+           err = lwc__intern_caseless_string(str1);
+       }
+       if (err == lwc_error_ok && str2->insensitive == NULL) {
+           err = lwc__intern_caseless_string(str2);
+       }
+       if (err == lwc_error_ok)
+           *ret = (str1->insensitive == str2->insensitive);
+       return err;
+}
+#endif
+
+#if defined(STMTEXPR)
+#define lwc__assert_and_expr(str, expr) ({assert(str != NULL); expr;})
+#else
+#define lwc__assert_and_expr(str, expr) (expr)
+#endif
 	
 /**
  * Retrieve the data pointer for an interned string.
@@ -228,7 +271,7 @@ lwc__intern_caseless_string(lwc_string *str);
  *	 in future.  Any code relying on it currently should be
  *	 modified to use ::lwc_string_length if possible.
  */
-#define lwc_string_data(str) ({assert(str != NULL); (const char *)((str)+1);})
+#define lwc_string_data(str) lwc__assert_and_expr(str, (const char *)((str)+1))
 
 /**
  * Retrieve the data length for an interned string.
@@ -236,7 +279,7 @@ lwc__intern_caseless_string(lwc_string *str);
  * @param str The string to retrieve the length of.
  * @return    The length of \a str.
  */
-#define lwc_string_length(str) ({assert(str != NULL); (str)->len;})
+#define lwc_string_length(str) lwc__assert_and_expr(str, (str)->len)
 
 /**
  * Retrieve (or compute if unavailable) a hash value for the content of the string.
@@ -250,7 +293,7 @@ lwc__intern_caseless_string(lwc_string *str);
  *	 to be stable between invocations of the program. Never use the hash
  *	 value as a way to directly identify the value of the string.
  */
-#define lwc_string_hash_value(str) ({assert(str != NULL); (str)->hash;})
+#define lwc_string_hash_value(str) lwc__assert_and_expr(str, (str)->hash)
 
 /**
  * Retrieve a hash value for the caseless content of the string.
